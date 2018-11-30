@@ -1,0 +1,206 @@
+---
+title: "biostatistical methods homework 5"
+output: pdf_document
+---
+
+
+```{r message=FALSE}
+library(knitr)
+library(tidyverse)
+library(faraway)
+library(broom)
+```
+
+R dataset ‘state.x77’ from library(faraway) contains information on 50 states from 1970s collected by US Census Bureau. The goal is to predict ‘life expectancy’ using a combination of remaining variables.
+
+```{r}
+life_data = as.data.frame(state.x77) %>%
+  janitor::clean_names()
+```
+
+1. Explore the dataset and generate appropriate descriptive statistics and relevant graphs
+
+```{r}
+mean_and_sd = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  } else if (length(x) == 1) {
+    stop("Cannot be computed for length 1 vectors")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  tibble(
+    mean = mean_x, 
+    sd = sd_x
+  )
+}
+```
+
+```{r message=FALSE}
+attach(life_data)
+```
+
+```{r}
+par(mfrow = c(2, 4))
+boxplot(population, main = 'population')
+boxplot(income,main = 'income' )
+boxplot(illiteracy, main = 'illiteracy')
+boxplot(life_exp, main = 'life_exp')
+boxplot(murder, main = 'murder')
+boxplot(hs_grad, main = 'hs_grad')
+boxplot(frost, main = 'frost')
+boxplot(area, main = 'area')
+```
+
+Population
+```{r}
+summary(population)
+```
+
+Income
+```{r}
+summary(income)
+```
+
+Illiteracy
+```{r}
+summary(illiteracy)
+```
+
+Life Exp
+```{r}
+summary(life_exp)
+```
+
+Murder
+```{r}
+summary(murder)
+```
+
+HS Grad
+```{r}
+summary(hs_grad)
+```
+
+Frost
+```{r}
+summary(frost)
+```
+
+Area
+```{r}
+summary(area)
+```
+
+
+2. Use automatic procedures to find a ‘best subset’ of the full model. Present the results and comment on the following:
+
+```{r}
+life_data.fit <- lm(life_exp ~., data=life_data)
+summary(life_data.fit)
+```
+
+Backward elimination
+
+```{r}
+step1<-update(life_data.fit, . ~ . -area)
+summary(step1)
+
+step2<-update(step1, . ~ . -illiteracy)
+summary(step2)
+
+step3<-update(step2, . ~ . -income)
+summary(step3)
+
+step4<-update(step3, . ~ . -population)
+summary(step4)
+```
+
+Using backward elimination, the final model contains murder, hs_grad and frost.
+
+Forward elimination
+
+```{r}
+fit1 <- lm(life_exp ~ population, data=life_data)
+tidy(fit1)
+
+fit2 <- lm(life_exp ~ income, data=life_data)
+tidy(fit2)
+
+fit3 <- lm(life_exp ~ illiteracy, data=life_data)
+tidy(fit3)
+
+fit4 <- lm(life_exp ~ murder, data=life_data)
+tidy(fit4)
+
+fit5 <- lm(life_exp ~ hs_grad, data=life_data)
+tidy(fit5)
+
+fit6 <- lm(life_exp ~ frost, data=life_data)
+tidy(fit6)
+
+fit7 <- lm(life_exp ~ area, data=life_data)
+tidy(fit7)
+```
+
+```{r}
+forward1<-lm(life_exp~murder, data=life_data)
+tidy(forward1)
+```
+
+```{r}
+fit1 <- update(forward1, . ~ . +population)
+tidy(fit1)
+fit2 <- update(forward1, . ~ . +income)
+tidy(fit2)
+fit3 <- update(forward1, . ~ . +illiteracy)
+tidy(fit3)
+fit4 <- update(forward1, . ~ . +hs_grad)
+tidy(fit4)
+fit5 <- update(forward1, . ~ . +frost)
+tidy(fit5)
+fit6 <- update(forward1, . ~ . +area)
+tidy(fit6)
+```
+
+```{r}
+forward2 <- update(forward1, . ~ . + hs_grad)
+tidy(forward2)
+```
+
+```{r}
+fit1 <- update(forward2, . ~ . +population)
+tidy(fit1)
+fit2 <- update(forward2, . ~ . +income)
+tidy(fit2)
+fit3 <- update(forward2, . ~ . +illiteracy)
+tidy(fit3)
+fit4 <- update(forward2, . ~ . +frost)
+tidy(fit4)
+fit5 <- update(forward2, . ~ . +area)
+tidy(fit5)
+```
+
+```{r}
+forward3 <- update(forward2, . ~ . + frost)
+tidy(forward3)
+```
+
+```{r}
+fit1 <- update(forward3, . ~ . +population)
+tidy(fit1)
+fit2 <- update(forward3, . ~ . +income)
+tidy(fit2)
+fit3 <- update(forward3, . ~ . +illiteracy)
+tidy(fit3)
+fit4 <- update(forward3, . ~ . +area)
+tidy(fit4)
+```
+
+```{r}
+forward4 <- update(forward3, . ~ . + population)
+tidy(forward4)
+```
+
