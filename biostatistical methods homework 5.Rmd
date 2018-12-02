@@ -1,6 +1,6 @@
 ---
 title: "biostatistical methods homework 5"
-output: github_document
+output: pdf_document
 ---
 
 
