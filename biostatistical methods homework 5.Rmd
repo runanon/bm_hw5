@@ -101,27 +101,118 @@ summary(area)
 
 ## 2. Use automatic procedures to find a ‘best subset’ of the full model. Present the results and comment on the following:
 
+Backward elimination
 ```{r}
 backward_fit <- lm(life_exp ~ ., data=life_data)
 step(backward_fit, direction='backward') %>%
   summary()
+```
 
-forward_fit <- lm(life_exp ~ ., data=life_data)
-step(forward_fit, direction='forward') %>%
+
+Forward elimination
+```{r}
+fit1 <- lm(life_exp ~ population, data=life_data)
+tidy(fit1)
+
+fit2 <- lm(life_exp ~ income, data=life_data)
+tidy(fit2)
+
+fit3 <- lm(life_exp ~ illiteracy, data=life_data)
+tidy(fit3)
+
+fit4 <- lm(life_exp ~ murder, data=life_data)
+tidy(fit4)
+
+fit5 <- lm(life_exp ~ hs_grad, data=life_data)
+tidy(fit5)
+
+fit6 <- lm(life_exp ~ frost, data=life_data)
+tidy(fit6)
+
+fit7 <- lm(life_exp ~ area, data=life_data)
+tidy(fit7)
+```
+
+```{r}
+forward1 <- lm(life_exp ~ murder, data = life_data)
+tidy(forward1)
+```
+
+```{r}
+fit1 <- update(forward1, . ~ . +population)
+tidy(fit1)
+
+fit2 <- update(forward1, . ~ . +income)
+tidy(fit2)
+
+fit3 <- update(forward1, . ~ . +illiteracy)
+tidy(fit3)
+
+fit4 <- update(forward1, . ~ . +hs_grad)
+tidy(fit4)
+
+fit5 <- update(forward1, . ~ . +frost)
+tidy(fit5)
+fit6 <- update(forward1, . ~ . +area)
+tidy(fit6)
+
+```
+
+```{r}
+forward2 <- update(forward1, . ~ . + hs_grad)
+tidy(forward2)
+```
+
+```{r}
+fit1 <- update(forward2, . ~ . +population)
+tidy(fit1)
+fit2 <- update(forward2, . ~ . +income)
+tidy(fit2)
+fit3 <- update(forward2, . ~ . +illiteracy)
+tidy(fit3)
+fit4 <- update(forward2, . ~ . +frost)
+tidy(fit4)
+fit5 <- update(forward2, . ~ . +area)
+tidy(fit5)
+```
+
+```{r}
+forward3 <- update(forward2, . ~ . + frost)
+tidy(forward3)
+```
+
+```{r}
+fit1 <- update(forward3, . ~ . +population)
+tidy(fit1)
+fit2 <- update(forward3, . ~ . +income)
+tidy(fit2)
+fit3 <- update(forward3, . ~ . +illiteracy)
+tidy(fit3)
+fit4 <- update(forward3, . ~ . +area)
+tidy(fit4)
+```
+
+```{r}
+forward_fit <- lm(life_exp ~ murder + hs_grad + frost, data = life_data) %>%
   summary()
+```
 
+
+Stepwiese regression
+```{r}
 stepwise_fit <- lm(life_exp ~ ., data=life_data)
 step(stepwise_fit, direction='both') %>%
   summary()
 ```
 
+
 ### a) Do the procedures generate the same model?
 
-No. Using backward elimination, the model we obtained is: life_exp ~ population + murder + hs_grad + frost. Using forward elimination, the model we obtained is: life_exp ~ population + income + illiteracy + murder + hs_grad + frost + area. Using stepwise regression, the model we obtained is: life_exp ~ population + murder + hs_grad + frost.
+No. Using backward elimination, the model we obtained is: life_exp ~ population + murder + hs_grad + frost. Using forward elimination, the model we obtained is: life_exp ~ murder + hs_grad + frost. Using stepwise regression, the model we obtained is: life_exp ~ population + murder + hs_grad + frost. However, we generated the model using different function/code, so the inclusion/exclusion criterion might be different. For instance, using `stepwise()` function in backward elimination and stepwise regression, the variable-`population` would be automatically included in the model, but the p-value is not that significant. If we discard `population` in backward and stepwise models, or, we include `population` in forward models, than these 3 procedures generate the same model. We will discuss this problem in the next question.
 
 ### b) Is there any variable a close call? What was your decision: keep or discard? Provide arguments for your choice. (Note: this question might have more or less relevance depending on the ‘subset’ you choose).
 
-Using backward elimination or stepwise regression, `population` is a close call variable with p-value of 0.05201.
+Using `stepwise()` function, as we talked about before, in backward elimination or stepwise regression, `population` is a close call variable with p-value of 0.05201.
 
 ```{r}
 bw_s = lm(life_exp ~ murder + hs_grad + frost, data = life_data)
